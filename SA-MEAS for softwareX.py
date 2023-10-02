@@ -3,57 +3,38 @@ import sympy
 import pyttsx3
 import speech_recognition as sr
 
+# Initialize the speech recognition object
+r = sr.Recognizer()
+
 # Function to analyze expression
 def analyze_expression(expr):
-    # Convert the expression string to a SymPy expression object
-    expr = sympy.sympify(expr)
+    try:
+        # Split the equation into left-hand and right-hand sides
+        lhs, rhs = expr.split('=')
+        
+        # Convert the left-hand and right-hand sides to SymPy expressions
+        lhs_expr = sympy.sympify(lhs.strip())  # Remove leading/trailing whitespace
+        rhs_expr = sympy.sympify(rhs.strip())  # Remove leading/trailing whitespace
+        
+        # Create an equation object
+        equation = sympy.Eq(lhs_expr, rhs_expr)
+        
+        # Analyze the equation as needed
+        # ...
 
-    # Create a symbol for the variable in the expression
-    x = sympy.symbols('x')
-    
-    # Get the factors of the expression
-    factors = sympy.factor(expr)
-    
-    # Get the terms of the expression
-    terms = sympy.expand(expr).args
-    
-    # Get the constants in the expression
-    constants = [str(term) for term in terms if not term.free_symbols]
-    
-    # Get the variables in the expression
-    variables = [str(symbol) for symbol in expr.free_symbols]
-    
-    # Get the type of expression
-    if len(variables) == 1:
-        if sympy.degree(expr) == 2:
-            expr_type = 'Quadratic'
-        else:
-            expr_type = 'Linear'
-    else:
-        expr_type = 'Multivariable'
-    
-    # Get the solutions of the expression
-    solutions = []
-    if len(variables) == 1:
-        solutions = sympy.solve(expr, x)
-    
-    # Create a string summary of the expression analysis
-    summary = f"Expression: {expr}\nSummary:\nExpression Type: {expr_type}\nTotal Terms: {len(terms)}\nFactors: {[str(factor) for factor in factors.args]}\nConstants: {', '.join(constants)}\nVariables: {', '.join(variables)}\nSolutions: {', '.join([str(s) for s in solutions])}"
-    
-    # Print the summary
-    print(summary)
-    
-    # Speak the summary
-    engine = pyttsx3.init()
-    engine.say(summary)
-    engine.runAndWait()
+        # Print the equation and its properties
+        print(f"Equation: {equation}")
+        # ...
+
+    except ValueError:
+        print("Invalid equation format. Please use 'left-hand side = right-hand side' format.")
 
 # Function to get expression using speech recognition
 def get_expression():
     with sr.Microphone() as source:
         print("Speak an expression:")
         audio = r.listen(source)
-        
+
     try:
         expr = r.recognize_google(audio)
         entry.delete(0, tk.END)
